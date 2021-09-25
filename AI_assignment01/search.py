@@ -28,30 +28,30 @@ def bfs(maze):
 
     ####################### Write Your Code Here ################################
 
-    queue = []
-    queue.append(start_point)
-
+    bfsQueue = []
+    bfsQueue.append(start_point)
     visited = set()
     visited.add(start_point)
+    record = {}
 
-    prev = {}
+    while bfsQueue:
+        start_point = bfsQueue.pop(0)
 
-    while queue:
-        start_point = queue.pop(0)
         if maze.isObjective(start_point[0], start_point[1]):
             path = [start_point]
+            
             while path[-1] != maze.startPoint():
-                path.append(prev[path[-1]])
+                path.append(record[path[-1]])
             path.reverse()
             return path
 
-        neighbors = maze.neighborPoints(start_point[0], start_point[1])
+        neighborPoints = maze.neighborPoints(start_point[0], start_point[1])
 
-        for i in neighbors:
-            if i not in visited and i not in queue:
-                prev[i] = start_point
-                queue.append(i)
-                visited.add(i)
+        for point in neighborPoints:
+            if point not in visited and point not in bfsQueue:
+                record[point] = start_point
+                bfsQueue.append(point)
+                visited.add(point)
 
     ############################################################################
 
@@ -105,40 +105,39 @@ def astar(maze):
 
     ####################### Write Your Code Here ################################
 
-    pQueue = queue.PriorityQueue()
-    s_node = (manhatten_dist(start_point, end_point), start_point)
-
+    astarQueue = queue.PriorityQueue()
+    newNode = (manhatten_dist(start_point, end_point), start_point)
     visited = set()
     visited.add(start_point)
-    
-    prev = {}
-    pQueue.put(s_node)
+    record = {}
+    astarQueue.put(newNode)
 
-    while pQueue:
-        s = pQueue.get()
-        s_pos = s[1]
+    while astarQueue:
+        agent = astarQueue.get()
+        agentLocation = agent[1]
 
-        if s_pos == end_point:
+        if agentLocation == end_point:
             path = [end_point]
+            
             while path[-1] != start_point:
-                path.append(prev[path[-1]])
+                path.append(record[path[-1]])
             path.reverse()
             return path
             
-        neighbors = maze.neighborPoints(s_pos[0], s_pos[1])
+        neighborPoints = maze.neighborPoints(agentLocation[0], agentLocation[1])
 
-        for i in neighbors:
+        for i in neighborPoints:
             if i not in visited:
-                prev[i] = s_pos
+                record[i] = agentLocation
 
                 cost = [i]
                 while cost[-1] != start_point:
-                    cost.append(prev[cost[-1]])
+                    cost.append(record[cost[-1]])
 
-                new_node = (manhatten_dist(i, end_point)+ len(cost), i)
+                aNewNode = (manhatten_dist(i, end_point)+ len(cost), i)
                 cost.clear
-                pQueue.put(new_node)
-                visited.add(s_pos)
+                astarQueue.put(aNewNode)
+                visited.add(agentLocation)
 
     ############################################################################
 
@@ -147,9 +146,9 @@ def astar(maze):
 
 
 
-def stage2_heuristic(agent, end_points, left):
+def stage2_heuristic(agent, end_points, pointLeft):
     dists = []
-    for i in range(left):
+    for i in range(pointLeft):
         dists.append(abs(agent[0]-end_points[i][0])+abs(agent[1]-end_points[i][1]))
 
     return min(dists)
@@ -170,60 +169,55 @@ def astar_four_circles(maze):
 
     start_point=maze.startPoint()
     flag = start_point
-    left = 4
-    counter = 0
     paths = []
+    pointLeft = 4
+    counter = 0
 
-    pQueue = queue.PriorityQueue()
-    s_node = (stage2_heuristic(start_point, end_points, left), start_point)
-
+    astarQueue = queue.PriorityQueue()
+    newNode = (stage2_heuristic(start_point, end_points, pointLeft), start_point)
     visited = set()
     visited.add(start_point)
-    
-    prev = {}
-    pQueue.put(s_node)
+    record = {}
+    astarQueue.put(newNode)
 
-    while pQueue:
-        s = pQueue.get()
-        s_pos = s[1]
+    while astarQueue:
+        agent = astarQueue.get()
+        agentLocation = agent[1]
 
-        if s_pos in end_points:
-            left -= 1
+        if agentLocation in end_points:
+            pointLeft -= 1
             counter += 1
+            path = [agentLocation]
 
-            path = [s_pos]
             while path[-1] != flag:
-                path.append(prev[path[-1]])
+                path.append(record[path[-1]])
             path.reverse()
             paths = paths + path
             path.clear
 
             if counter != 4:
-                pQueue = queue.PriorityQueue()
-                s_node = (stage2_heuristic(s_pos, end_points, left), s_pos)
+                astarQueue = queue.PriorityQueue()
+                newNode = (stage2_heuristic(agentLocation, end_points, pointLeft), agentLocation)
                 visited = set()
-                visited.add(s_pos)
-                prev.clear
-                pQueue.put(s_node)
+                visited.add(agentLocation)
+                record.clear
+                astarQueue.put(newNode)
             else:
                 return paths
         
-            flag = s_pos
+            flag = agentLocation
             end_points.remove(flag)
 
-        neighbors = maze.neighborPoints(s_pos[0], s_pos[1])
+        neighborPoints = maze.neighborPoints(agentLocation[0], agentLocation[1])
 
-        for i in neighbors:
-            if i not in visited:
-                prev[i] = s_pos
+        for point in neighborPoints:
+            if point not in visited:
+                record[point] = agentLocation
 
-                cost = [i]
-
-                new_node = (stage2_heuristic(i, end_points, left), i)
-                cost.clear
-                pQueue.put(new_node)
-                visited.add(s_pos)
-        path.append(s_pos)
+                aNewNode = (stage2_heuristic(point, end_points, pointLeft), point)
+                astarQueue.put(aNewNode)
+                visited.add(agentLocation)
+        path.append(agentLocation)
 
     ############################################################################
 
