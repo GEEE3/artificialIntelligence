@@ -1,7 +1,7 @@
 ###### Write Your Library Here ###########
 
 
-
+import queue
 
 
 #########################################
@@ -52,8 +52,6 @@ def bfs(maze):
                 prev[i] = start_point
                 queue.append(i)
                 visited.add(i)
-
-    return path
 
     ############################################################################
 
@@ -107,23 +105,40 @@ def astar(maze):
 
     ####################### Write Your Code Here ################################
 
+    pQueue = queue.PriorityQueue()
+    s_node = (manhatten_dist(start_point, end_point), start_point)
 
+    visited = set()
+    visited.add(start_point)
+    
+    prev = {}
+    pQueue.put(s_node)
 
+    while pQueue:
+        s = pQueue.get()
+        s_pos = s[1]
 
+        if s_pos == end_point:
+            path = [end_point]
+            while path[-1] != start_point:
+                path.append(prev[path[-1]])
+            path.reverse()
+            return path
+            
+        neighbors = maze.neighborPoints(s_pos[0], s_pos[1])
 
+        for i in neighbors:
+            if i not in visited:
+                prev[i] = s_pos
 
+                cost = [i]
+                while cost[-1] != start_point:
+                    cost.append(prev[cost[-1]])
 
-
-
-
-
-
-
-
-
-
-
-    return path
+                new_node = (manhatten_dist(i, end_point)+ len(cost), i)
+                cost.clear
+                pQueue.put(new_node)
+                visited.add(s_pos)
 
     ############################################################################
 
