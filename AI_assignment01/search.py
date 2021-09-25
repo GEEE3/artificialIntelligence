@@ -172,7 +172,7 @@ def astar_four_circles(maze):
     flag = start_point
     left = 4
     counter = 0
-    path2 = []
+    paths = []
 
     pQueue = queue.PriorityQueue()
     s_node = (stage2_heuristic(start_point, end_points, left), start_point)
@@ -190,28 +190,23 @@ def astar_four_circles(maze):
         if s_pos in end_points:
             left -= 1
             counter += 1
-            if counter == 1:
-                #path = [s_pos]
-                #while path[-1] != start_point:
-                #    path.append(prev[path[-1]])
-                #path.reverse()
-                
-                # pQueue = queue.PriorityQueue()
-                s_node = (stage2_heuristic(s_pos, end_points, left), s_pos)
 
-                visited.clear
+            path = [s_pos]
+            while path[-1] != flag:
+                path.append(prev[path[-1]])
+            path.reverse()
+            paths = paths + path
+            path.clear
+
+            if counter != 4:
+                pQueue = queue.PriorityQueue()
+                s_node = (stage2_heuristic(s_pos, end_points, left), s_pos)
+                visited = set()
                 visited.add(s_pos)
                 prev.clear
-                # pQueue.put(s_node)
-                # return path
-
-            if counter == 4:
-                #path2 = [s_pos]
-                #while path2[-1] != flag:
-                #    path2.append(prev[path2[-1]])
-                #path2.reverse()
-                print(path)
-                return path
+                pQueue.put(s_node)
+            else:
+                return paths
         
             flag = s_pos
             end_points.remove(flag)
@@ -229,8 +224,6 @@ def astar_four_circles(maze):
                 pQueue.put(new_node)
                 visited.add(s_pos)
         path.append(s_pos)
-
-    # return path
 
     ############################################################################
 
