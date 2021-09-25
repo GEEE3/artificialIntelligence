@@ -147,8 +147,12 @@ def astar(maze):
 
 
 
-def stage2_heuristic():
-    pass
+def stage2_heuristic(agent, end_points, left):
+    dists = []
+    for i in range(left):
+        dists.append(abs(agent[0]-end_points[i][0])+abs(agent[1]-end_points[i][1]))
+
+    return min(dists)
 
 
 def astar_four_circles(maze):
@@ -164,24 +168,69 @@ def astar_four_circles(maze):
 
     ####################### Write Your Code Here ################################
 
+    start_point=maze.startPoint()
+    flag = start_point
+    left = 4
+    counter = 0
+    path2 = []
 
+    pQueue = queue.PriorityQueue()
+    s_node = (stage2_heuristic(start_point, end_points, left), start_point)
 
+    visited = set()
+    visited.add(start_point)
+    
+    prev = {}
+    pQueue.put(s_node)
 
+    while pQueue:
+        s = pQueue.get()
+        s_pos = s[1]
 
+        if s_pos in end_points:
+            left -= 1
+            counter += 1
+            if counter == 1:
+                #path = [s_pos]
+                #while path[-1] != start_point:
+                #    path.append(prev[path[-1]])
+                #path.reverse()
+                
+                # pQueue = queue.PriorityQueue()
+                s_node = (stage2_heuristic(s_pos, end_points, left), s_pos)
 
+                visited.clear
+                visited.add(s_pos)
+                prev.clear
+                # pQueue.put(s_node)
+                # return path
 
+            if counter == 4:
+                #path2 = [s_pos]
+                #while path2[-1] != flag:
+                #    path2.append(prev[path2[-1]])
+                #path2.reverse()
+                print(path)
+                return path
+        
+            flag = s_pos
+            end_points.remove(flag)
 
+        neighbors = maze.neighborPoints(s_pos[0], s_pos[1])
 
+        for i in neighbors:
+            if i not in visited:
+                prev[i] = s_pos
 
+                cost = [i]
 
+                new_node = (stage2_heuristic(i, end_points, left), i)
+                cost.clear
+                pQueue.put(new_node)
+                visited.add(s_pos)
+        path.append(s_pos)
 
-
-
-
-
-
-
-    return path
+    # return path
 
     ############################################################################
 
