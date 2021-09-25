@@ -28,26 +28,30 @@ def bfs(maze):
 
     ####################### Write Your Code Here ################################
 
+    queue = []
+    queue.append(start_point)
 
+    visited = set()
+    visited.add(start_point)
 
+    prev = {}
 
+    while queue:
+        start_point = queue.pop(0)
+        if maze.isObjective(start_point[0], start_point[1]):
+            path = [start_point]
+            while path[-1] != maze.startPoint():
+                path.append(prev[path[-1]])
+            path.reverse()
+            return path
 
+        neighbors = maze.neighborPoints(start_point[0], start_point[1])
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        for i in neighbors:
+            if i not in visited and i not in queue:
+                prev[i] = start_point
+                queue.append(i)
+                visited.add(i)
 
     return path
 
