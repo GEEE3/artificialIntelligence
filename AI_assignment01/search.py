@@ -133,8 +133,7 @@ def astar(maze):
                 cost = [i]
                 while cost[-1] != start_point:
                     cost.append(record[cost[-1]])
-
-                aNewNode = (manhatten_dist(i, end_point)+ len(cost), i)
+                aNewNode = (manhatten_dist(i, end_point) * 0.7 + len(cost), i)
                 cost.clear
                 astarQueue.put(aNewNode)
                 visited.add(agentLocation)
@@ -214,7 +213,12 @@ def astar_four_circles(maze):
             if point not in visited:
                 record[point] = agentLocation
 
-                aNewNode = (stage2_heuristic(point, end_points, pointLeft), point)
+                cost = [point]
+                while cost[-1] != flag:
+                    cost.append(record[cost[-1]])
+                aNewNode = (stage2_heuristic(point, end_points, pointLeft) + len(cost), point)
+                cost.clear
+
                 astarQueue.put(aNewNode)
                 visited.add(agentLocation)
         path.append(agentLocation)
@@ -265,26 +269,62 @@ def astar_many_circles(maze):
 
     ####################### Write Your Code Here ################################
 
+    start_point=maze.startPoint()
+    flag = start_point
+    paths = []
+    pointLeft = len(end_points)
+    numOfGoals = pointLeft
+    counter = 0
 
+    astarQueue = queue.PriorityQueue()
+    newNode = (stage2_heuristic(start_point, end_points, pointLeft), start_point)
+    visited = set()
+    visited.add(start_point)
+    record = {}
+    astarQueue.put(newNode)
 
+    while astarQueue:
+        agent = astarQueue.get()
+        agentLocation = agent[1]
 
+        if agentLocation in end_points:
+            pointLeft -= 1
+            counter += 1
+            path = [agentLocation]
 
+            while path[-1] != flag:
+                path.append(record[path[-1]])
+            path.reverse()
+            paths = paths + path
+            path.clear
 
+            if counter != numOfGoals:
+                astarQueue = queue.PriorityQueue()
+                newNode = (stage2_heuristic(agentLocation, end_points, pointLeft), agentLocation)
+                visited = set()
+                visited.add(agentLocation)
+                record.clear
+                astarQueue.put(newNode)
+            else:
+                return paths
+        
+            flag = agentLocation
+            end_points.remove(flag)
 
+        neighborPoints = maze.neighborPoints(agentLocation[0], agentLocation[1])
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    return path
+        for point in neighborPoints:
+            if point not in visited:
+                record[point] = agentLocation
+                
+                cost = [point]
+                while cost[-1] != flag:
+                    cost.append(record[cost[-1]])
+                aNewNode = (stage2_heuristic(point, end_points, pointLeft) + len(cost), point)
+                cost.clear
+                
+                astarQueue.put(aNewNode)
+                visited.add(agentLocation)
+        path.append(agentLocation)
 
     ############################################################################
